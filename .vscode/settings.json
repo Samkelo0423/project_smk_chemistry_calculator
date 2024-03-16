@@ -7,6 +7,7 @@
         "fillna",
         "freegibbs",
         "isin",
+        "labelwidget",
         "linestyle",
         "ntheory",
         "sympy",

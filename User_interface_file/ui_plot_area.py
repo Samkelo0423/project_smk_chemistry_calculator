@@ -4,7 +4,6 @@ import pandas as pd
 from pandastable import Table
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 from calculation_file.calculation_plot_file import plot_ellingham_diagram
 
 
@@ -30,9 +29,10 @@ def create_ui(root):
     style = ttk.Style()
     style.theme_use("clam")  # Use a modern theme
 
-    style.configure("TLabel", font=("Helvetica", 12, "bold"), foreground="black")
-    style.configure("TEntry", font=("Helvetica", 11))
-    style.configure("TButton", font=("Helvetica", 12, "bold"), foreground="black", background="light gray")
+    style.configure("TLabel", font=("Helvetica", 12, "bold"), foreground="black", borderwidth=2, relief="raised")
+    style.configure("TEntry", font=("Helvetica", 11), borderwidth=2, relief="raised")
+    style.configure("TButton", font=("Helvetica", 12, "bold"), foreground="black", background="light gray", borderwidth=2, relief="raised")
+    style.configure("TFrame", borderwidth=2, relief="raised")
 
     custom_font = font.Font(family="Helvetica", size=18, weight="bold")
     reaction_label = ttk.LabelFrame(root, text="Reaction Equation or Chemical Formula (separated by commas)")
@@ -73,7 +73,9 @@ def create_ui(root):
 
     # Ellingham Plot Area
     cmean_frame = ttk.LabelFrame(root, text="Chat", padding=2)
-    cmean_frame.grid(row=0, column=4, columnspan=13, padx=5, pady=2, sticky="nswe")
+    cmean_frame.grid(row=0, column=4, columnspan=13, padx=(0,5), pady=2, sticky="nswe")
+
+
 
     from_temp_label = ttk.Label(cmean_frame, text="Y-Axis", font=("Helvetica", 11))
     from_temp_label.grid(row=0, column=4, padx=5)
@@ -91,7 +93,7 @@ def create_ui(root):
     calculate_button.grid(row=0, column=32, padx=20)
 
     graph_frame = ttk.LabelFrame(root)
-    graph_frame.grid(row=1, column=4, rowspan=200, padx=6, pady=1, sticky="nswe")
+    graph_frame.grid(row=1, column=4, rowspan=200, padx=(0,6), pady=1, sticky="nswe")
 
     fig, ax = plt.subplots(figsize=(6, 8))
     canvas = FigureCanvasTkAgg(fig, master=graph_frame)
