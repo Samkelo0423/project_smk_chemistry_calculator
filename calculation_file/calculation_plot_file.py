@@ -1,0 +1,66 @@
+import numpy as np
+from matplotlib import pyplot as plt
+from calculation_file.calculation_engine_properties import perform_calculations
+from data_process_file.equation_processor import balance_equation
+
+
+def plot_ellingham_diagram(file_path, reaction_equations, temperature_from, temperature_to, temperature_step , canvas):
+    temperatures = np.linspace(temperature_from, temperature_to, temperature_step)
+    reaction_equations = [eq.strip() for eq in reaction_equations]
+
+    # Clear the previous plot
+    plt.clf()
+
+    max_delta_G = float('-inf')  # Initialize max_delta_G to negative infinity
+    min_delta_G = float('inf')  # Initialize min_delta_G to positive infinity
+
+    if "=" not in reaction_equations[0] and "+" not in reaction_equations[0]:
+
+        for reaction_eq in reaction_equations:
+            delta_G_values = []
+            for temperature in temperatures:
+                delta_G = perform_calculations(file_path, temperature, reaction_eq)
+                delta_G_values.append(delta_G)
+                max_delta_G = max(max_delta_G, delta_G)  # Update max_delta_G
+                min_delta_G = min(min_delta_G, delta_G)  # Update min_delta_G
+
+            color = np.random.rand(3,)
+            plt.plot(temperatures, delta_G_values, label=reaction_eq, color=color)
+            label_x = temperatures[0]
+            label_y = delta_G_values[0]
+            plt.text(label_x, label_y, reaction_eq, fontsize=8, color=color,
+                     horizontalalignment='left', verticalalignment='bottom', fontweight='bold')
+
+    else:
+
+        for reaction_eq in reaction_equations:
+            balanced_reactants, balanced_products = balance_equation(reaction_eq)
+            balanced_eq = ' + '.join(balanced_reactants) + ' = ' + ' + '.join(balanced_products)
+
+            delta_G_values = []
+            for temperature in temperatures:
+                delta_G = perform_calculations(file_path, temperature, reaction_eq)
+                delta_G_values.append(delta_G)
+                max_delta_G = max(max_delta_G, delta_G)  # Update max_delta_G
+                min_delta_G = min(min_delta_G, delta_G)  # Update min_delta_G
+
+            color = np.random.rand(3,)
+            plt.plot(temperatures, delta_G_values, label=balanced_eq, color=color)
+            label_x = temperatures[0]
+            label_y = delta_G_values[0]
+            plt.text(label_x, label_y, balanced_eq, fontsize=8, color=color,
+                     horizontalalignment='left', verticalalignment='bottom', fontweight='bold')
+    
+    plt.xlabel('Temperature (K)')
+    plt.ylabel('Delta G (kJ/mol)')
+    plt.title('Ellingham Diagram')
+    plt.ylim(min_delta_G - 50, max_delta_G + 50)  # Adjust y-axis limits
+    plt.axhline(y=0, color='k', linestyle='-', linewidth=0.5)
+
+    
+
+    # Update the canvas with the new plot
+    canvas.draw()
+
+
+
