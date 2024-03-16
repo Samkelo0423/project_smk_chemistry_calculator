@@ -1,7 +1,8 @@
 import numpy as np
 import math
+from data_process_file.data_processor_module import parse_excel_data
 from data_process_file.equation_processor import parse_reaction_equation
-from data_process_file.data_processor_module import parse_excel_data  
+
 
 
 def perform_calculations(file_path, temperature, reaction_equation):
@@ -14,11 +15,11 @@ def perform_calculations(file_path, temperature, reaction_equation):
         
         # Check if the reaction equation is a single-element formula
         if "=" and "+" not in reaction_equation:
-            delta_G_reaction = calculate_freegibbs_single_element(processed_data, reaction_equation, temperature)
+            delta_G_reaction, heat_capacity = calculate_freegibbs_single_element(processed_data, reaction_equation, temperature)
         else:
-            delta_G_reaction = calculate_freegibbs(processed_data, reaction_equation, temperature)
+            delta_G_reaction , heat_capacity = calculate_freegibbs(processed_data, reaction_equation, temperature)
 
-        return delta_G_reaction
+        return delta_G_reaction, heat_capacity
     except Exception as e:
         print(f"Calculation error: {e}")
         return None
@@ -82,11 +83,12 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     contribution_of_coefficients = calculate_contribution_of_coefficients(change_in_a , change_in_b , temperature)
 
                     delta_G = change_in_enthalpy - temperature * change_in_entropy + contribution_of_coefficients
+                    heat_capacity = calculate_heat_capicity(a_value , b_value , temperature)
 
                 else:
                     print(f"Error: Substance '{substance_formula}' with state '{state}' not found in the database. Skipping...")
         
-        return delta_G
+        return delta_G , heat_capacity
 
         
     except KeyError as e:
@@ -136,6 +138,7 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                 
             
                   delta_G = delta_H - temperature * delta_S + calculate_contribution_of_coefficients(a_value, b_value, temperature)
+                  heat_capacity = calculate_heat_capicity(a_value , b_value , temperature)
         
               
               
@@ -143,7 +146,7 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                   print(f"Error: Substance '{substance_formula}' not found in the database.")
                   return None
               
-        return delta_G
+        return delta_G, heat_capacity
           
 
     except KeyError as e:
@@ -163,10 +166,20 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
         return None
 
 def calculate_contribution_of_coefficients(delta_a, delta_b, temperature):
-    term1 = delta_a * (temperature - 298 - temperature * math.log(temperature) + temperature * math.log(298))
-    term2 = delta_b * 10**-3 * (298 * temperature - 0.5 * temperature**2 - 0.5 * 298**2)
-    result = term1 + term2
-    return result
+    term_1 = delta_a * (temperature - 298 - temperature * math.log(temperature) + temperature * math.log(298))
+    term_2 = delta_b * 10**-3 * (298 * temperature - 0.5 * temperature**2 - 0.5 * 298**2)
+    result_1 = term_1 + term_2
+
+    return result_1
+
+def calculate_heat_capicity(delta_a , delta_b,temperature):
+
+    term_1 = delta_a*(temperature - 298)
+    term_2 = delta_b*0.5*(298**2  - temperature**2)
+    result_1 = term_1 + term_2
+
+    return result_1
+
 
 def is_single_element_formula(reaction_equation):
     # Check if the reaction equation contains only the "=" sign

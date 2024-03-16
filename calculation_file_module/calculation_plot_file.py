@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from calculation_file.calculation_engine_properties import perform_calculations
+from calculation_file_module.calculation_engine_properties import perform_calculations
 from data_process_file.equation_processor import balance_equation
 
 
@@ -18,9 +18,11 @@ def plot_ellingham_diagram(file_path, reaction_equations, temperature_from, temp
 
         for reaction_eq in reaction_equations:
             delta_G_values = []
+            heat_capacity_list = []
             for temperature in temperatures:
-                delta_G = perform_calculations(file_path, temperature, reaction_eq)
+                delta_G ,heat_capacity = perform_calculations(file_path, temperature, reaction_eq)
                 delta_G_values.append(delta_G)
+                heat_capacity_list.append(heat_capacity)
                 max_delta_G = max(max_delta_G, delta_G)  # Update max_delta_G
                 min_delta_G = min(min_delta_G, delta_G)  # Update min_delta_G
 
@@ -38,9 +40,11 @@ def plot_ellingham_diagram(file_path, reaction_equations, temperature_from, temp
             balanced_eq = ' + '.join(balanced_reactants) + ' = ' + ' + '.join(balanced_products)
 
             delta_G_values = []
+            heat_capacity_list = []
             for temperature in temperatures:
                 delta_G = perform_calculations(file_path, temperature, reaction_eq)
                 delta_G_values.append(delta_G)
+                heat_capacity_list.append(heat_capacity)
                 max_delta_G = max(max_delta_G, delta_G)  # Update max_delta_G
                 min_delta_G = min(min_delta_G, delta_G)  # Update min_delta_G
 
