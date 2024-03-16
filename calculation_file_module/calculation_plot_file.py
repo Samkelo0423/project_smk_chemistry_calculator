@@ -42,7 +42,7 @@ def plot_ellingham_diagram(file_path, reaction_equations, temperature_from, temp
             delta_G_values = []
             heat_capacity_list = []
             for temperature in temperatures:
-                delta_G = perform_calculations(file_path, temperature, reaction_eq)
+                delta_G , heat_capacity= perform_calculations(file_path, temperature, reaction_eq)
                 delta_G_values.append(delta_G)
                 heat_capacity_list.append(heat_capacity)
                 max_delta_G = max(max_delta_G, delta_G)  # Update max_delta_G

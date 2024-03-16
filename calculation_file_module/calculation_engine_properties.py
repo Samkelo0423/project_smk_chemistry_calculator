@@ -82,7 +82,7 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     contribution_of_coefficients = calculate_contribution_of_coefficients(change_in_a , change_in_b , temperature)
 
                     delta_G = change_in_enthalpy - temperature * change_in_entropy + contribution_of_coefficients
-                    heat_capacity = calculate_heat_capicity(a_value , b_value , temperature)
+                    heat_capacity = calculate_heat_capacity(a_value , b_value , temperature)
 
                 else:
                     print(f"Error: Substance '{substance_formula}' with state '{state}' not found in the database. Skipping...")
@@ -137,7 +137,7 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                 
             
                   delta_G = delta_H - temperature * delta_S + calculate_contribution_of_coefficients(a_value, b_value, temperature)
-                  heat_capacity = calculate_heat_capicity(a_value , b_value , temperature)
+                  heat_capacity = calculate_heat_capacity(a_value , b_value , temperature)
         
               
               
@@ -171,7 +171,7 @@ def calculate_contribution_of_coefficients(delta_a, delta_b, temperature):
 
     return result_1
 
-def calculate_heat_capicity(delta_a , delta_b,temperature):
+def calculate_heat_capacity(delta_a , delta_b,temperature):
 
     term_1 = delta_a*(temperature - 298)
     term_2 = delta_b*0.5*(298**2  - temperature**2)

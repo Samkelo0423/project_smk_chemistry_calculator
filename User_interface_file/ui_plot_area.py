@@ -4,7 +4,7 @@ import pandas as pd
 from pandastable import Table
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from calculation_file.calculation_plot_file import plot_ellingham_diagram
+from calculation_file_module.calculation_plot_file import plot_ellingham_diagram
 
 
 class CustomTable(Table):
