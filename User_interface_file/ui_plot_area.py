@@ -12,35 +12,85 @@ class CustomTable(Table):
         """Override _configureStyle to set row colors."""
         Table._configureStyle(self)
         style = ttk.Style()
-        style.configure("Custom.Treeview", font=('Helvetica', 10))  # Change cell font
+        style.configure("Custom.Treeview", font=("Helvetica", 10))  # Change cell font
         for i in range(0, len(self.rows), 2):
-            self.tag_configure(self.rows[i], background='lightgray')
+            self.tag_configure(self.rows[i], background="lightgray")
+
 
 def create_ui(root):
 
     def calculate():
-      reaction_equations = reaction_entry.get("1.0", tk.END).strip().split(',')  # Split by commas
-      temperature_from = float(from_temp_entry.get())
-      temperature_to = float(to_temp_entry.get())
-      temperature_step = int(step_temp_entry.get())
-      file_path = "Thermodata.xlsx"  # Update with your file path for delta G calculation
-      plot_ellingham_diagram(file_path, reaction_equations, temperature_from, temperature_to, temperature_step,canvas)
-    
+        reaction_equations = (
+            reaction_entry.get("1.0", tk.END).strip().split(",")
+        )  # Split by commas
+        temperature_from = float(from_temp_entry.get())
+        temperature_to = float(to_temp_entry.get())
+        temperature_step = int(step_temp_entry.get())
+
+        file_path = (
+            "Thermodata.xlsx"  # Update with your file path for delta G calculation
+        )
+        s = plot_ellingham_diagram(
+            file_path,
+            reaction_equations,
+            temperature_from,
+            temperature_to,
+            temperature_step,
+            canvas,
+        )
+        # Load data from source
+        output_excel = "data_from_calculation.xlsx"
+        s.to_excel(output_excel, index=False)
+        df = pd.read_excel(output_excel)
+        # Create the table
+        table_frame = ttk.Frame(root)
+        table_frame.grid(
+            row=3, column=0, columnspan=2, rowspan=200, padx=4, pady=1, sticky="nswe"
+        )
+
+        # Create the table
+        table = CustomTable(
+            table_frame, dataframe=df, showtoolbar=False, showstatusbar=True
+        )
+        table.show()
+
+        # Add more modern features
+        table.autoResizeColumns()
+
     style = ttk.Style()
     style.theme_use("clam")  # Use a modern theme
 
-    style.configure("TLabel", font=("Helvetica", 12, "bold"), foreground="black", borderwidth=2, relief="raised")
+    style.configure(
+        "TLabel",
+        font=("Helvetica", 12, "bold"),
+        foreground="black",
+        borderwidth=2,
+        relief="raised",
+    )
     style.configure("TEntry", font=("Helvetica", 11), borderwidth=2, relief="raised")
-    style.configure("TButton", font=("Helvetica", 12, "bold"), foreground="black", background="light gray", borderwidth=2, relief="raised")
+    style.configure(
+        "TButton",
+        font=("Helvetica", 12, "bold"),
+        foreground="black",
+        background="light gray",
+        borderwidth=2,
+        relief="raised",
+    )
     style.configure("TFrame", borderwidth=2, relief="raised")
 
     custom_font = font.Font(family="Helvetica", size=18, weight="bold")
-    reaction_label = ttk.LabelFrame(root, text="Reaction Equation or Chemical Formula (separated by commas)")
+    reaction_label = ttk.LabelFrame(
+        root, text="Reaction Equation or Chemical Formula (separated by commas)"
+    )
     reaction_label.grid(row=0, column=0, padx=4, pady=1, sticky="nswe")
 
     num_columns = pd.read_excel("Thermodata.xlsx").shape[1]
     entry_width = num_columns * 6  # Adjust based on your preference
-    reaction_entry = tk.Text(reaction_label, width=entry_width, height=1, font=custom_font)  # Increased width
+    reaction_entry = tk.Text(
+        reaction_label, width=entry_width, height=1, font=custom_font
+    )  
+    
+    # Increased width
     reaction_entry.insert(1.0, "H2O(g) = H2(g) + O2(g)")
     reaction_entry.grid(row=1, column=0, columnspan=3, padx=5, pady=1, sticky="nswe")
 
@@ -73,9 +123,7 @@ def create_ui(root):
 
     # Ellingham Plot Area
     cmean_frame = ttk.LabelFrame(root, text="Chat", padding=2)
-    cmean_frame.grid(row=0, column=4, columnspan=13, padx=(0,5), pady=2, sticky="nswe")
-
-
+    cmean_frame.grid(row=0, column=4, columnspan=13, padx=(0, 5), pady=2, sticky="nswe")
 
     from_temp_label = ttk.Label(cmean_frame, text="Y-Axis", font=("Helvetica", 11))
     from_temp_label.grid(row=0, column=4, padx=5)
@@ -91,31 +139,26 @@ def create_ui(root):
 
     calculate_button = ttk.Button(cmean_frame, text="Delta_G")
     calculate_button.grid(row=0, column=32, padx=20)
+# Create the table
+    table_frame = ttk.Frame(root)
+    table_frame.grid(
+            row=3, column=0, columnspan=2, rowspan=200, padx=4, pady=1, sticky="nswe"
+        )
+    # Create the table
+    table = CustomTable(
+            table_frame, showtoolbar=False, showstatusbar=True
+        )
+    table.show()
 
     graph_frame = ttk.LabelFrame(root)
-    graph_frame.grid(row=1, column=4, rowspan=200, padx=(0,6), pady=1, sticky="nswe")
+    graph_frame.grid(row=1, column=4, rowspan=200, padx=(0, 6), pady=1, sticky="nswe")
 
     fig, ax = plt.subplots(figsize=(6, 8))
     canvas = FigureCanvasTkAgg(fig, master=graph_frame)
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     # Pre-label the plot
-    plt.xlabel('Temperature (K)')
-    plt.ylabel('Delta G (kJ/mol)')
-    plt.title('Ellingham Diagram')
-    plt.axhline(y=0, color='k', linestyle='-', linewidth=0.5)
-
-    # Load data from source
-    df = pd.read_excel("Thermodata.xlsx", index_col=0)
-
-    # Create the table
-    table_frame = ttk.Frame(root)
-    table_frame.grid(row=3, column=0, columnspan=2,rowspan=200, padx=4, pady=1, sticky="nswe")
-
-    # Create the table
-    table = CustomTable(table_frame, dataframe=df, showtoolbar=False, showstatusbar=True)
-    table.show()
-
-    # Add more modern features
-    table.autoResizeColumns()  # Auto-resize columns to fit content
-
+    plt.xlabel("Temperature (K)")
+    plt.ylabel("Delta G (kJ/mol)")
+    plt.title("Ellingham Diagram")
+    plt.axhline(y=0, color="k", linestyle="-", linewidth=0.5)
