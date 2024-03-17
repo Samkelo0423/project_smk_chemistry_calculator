@@ -101,6 +101,14 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                         )
                     )
 
+                    
+
+                    heat_capacity = calculate_heat_capacity(
+
+                        a_value, b_value, temperature
+
+                    )
+                    
                     delta_G = (
 
                         change_in_enthalpy
@@ -108,38 +116,22 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                         + contribution_of_coefficients
 
                     )
-
-                    heat_capacity = calculate_heat_capacity(
-
-                        a_value, b_value, temperature
-
-                    )
-
-                    enthalpy_1 = calculate_enthalpy(
-
-                        change_in_enthalpy, change_in_a, change_in_b, temperature
-
-                    )
-
-                    entropy_2 = calculate_entropy(
-
-                        change_in_entropy, change_in_a, change_in_b, temperature
-
-                    )
-
+                     
+                    
                 else:
                     print(
                         f"Error: Substance '{substance_formula}' with state '{state}' not found in the database. Skipping..."
                     )
-
         return (
 
-            delta_G,
-            heat_capacity,
-            enthalpy_1,
-            entropy_2,
-            temperature,
-        )
+                 delta_G,
+                 heat_capacity,
+                 change_in_enthalpy,
+                 change_in_entropy,
+                 temperature
+
+                 )
+
 
     except KeyError as e:
         print(f"KeyError occurred while accessing the DataFrame columns: {e}")
@@ -190,7 +182,6 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                     else:
                         b_value = 1e-6
 
-                    
                     delta_G = (
                         delta_H
                         - temperature * delta_S
@@ -202,21 +193,16 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                     heat_capacity = calculate_heat_capacity(
                         a_value, b_value, temperature
                     )
-                    enthalpy_1 = calculate_enthalpy(
-                        delta_H, a_value, b_value, temperature
-                    )
-                    entropy_2 = calculate_entropy(
-                        delta_S, a_value, b_value, temperature
-                    )
-
+                    
+                    
                 else:
                     print(
                         
                         f"Error: Substance '{substance_formula}' not found in the database."
                     )
                     return None
-
-        return delta_G, heat_capacity, enthalpy_1, entropy_2, temperature
+                
+        return delta_G, heat_capacity, delta_H, delta_S, temperature
 
     except KeyError as e:
         print(f"KeyError occurred while accessing the DataFrame columns: {e}")
@@ -236,15 +222,16 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
 
 
 def calculate_contribution_of_coefficients(delta_a, delta_b, temperature):
-    term_1 = float(delta_a * (
+    
+    term_1 = delta_a * (
         temperature
         - 298
         - temperature * math.log(temperature)
         + temperature * math.log(298)
-    ))
-    term_2 = float(
-        delta_b * 10**-3 * (298 * temperature - 0.5 * temperature**2 - 0.5 * 298**2)
     )
+
+    term_2 =   delta_b * 10**-3 * (298 * temperature - 0.5 * temperature**2 - 0.5 * 298**2)
+
     result_1 = term_1 + term_2
 
     return result_1
@@ -252,8 +239,8 @@ def calculate_contribution_of_coefficients(delta_a, delta_b, temperature):
 
 def calculate_heat_capacity(delta_a, delta_b, temperature):
 
-    term_1 = float(delta_a * (temperature - 298))
-    term_2 = float(delta_b * 0.5 * (temperature**2 - 298**2))
+    term_1 = delta_a * (temperature - 298)
+    term_2 = delta_b * 0.5 * (temperature**2 - 298**2)
 
     result_1 = term_1 + term_2
 
@@ -262,8 +249,8 @@ def calculate_heat_capacity(delta_a, delta_b, temperature):
 
 def calculate_enthalpy(enthalpy, delta_a, delta_b, temperature):
 
-    term_1 = float(delta_a*(temperature - 298))
-    term_2 = float(0.5 * delta_b * 10**-3 * (temperature**2 - 298**2))
+    term_1 = delta_a*(temperature - 298)
+    term_2 = 0.5 * delta_b * 10**-3 * (temperature**2 - 298**2)
 
     enthalpy_1 = enthalpy + term_1 + term_2
 
@@ -272,8 +259,8 @@ def calculate_enthalpy(enthalpy, delta_a, delta_b, temperature):
 
 def calculate_entropy(entropy, delta_a, delta_b, temperature):
 
-    term_1 = float(delta_a * (math.log(temperature) - math.log(298)))
-    term_2 = float(delta_b * 10**-3 * (temperature - 298))
+    term_1 = delta_a * (math.log(temperature) - math.log(298))
+    term_2 = delta_b * 10**-3 * (temperature - 298)
 
     entropy_1 = entropy + term_1 + term_2
 

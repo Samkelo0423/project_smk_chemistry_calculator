@@ -55,6 +55,7 @@ def plot_ellingham_diagram(
                         "Delta G (kJ/mol)": delta_G_values,
                     }
                 )
+                print(df)
 
             color = np.random.rand(
                 3,
