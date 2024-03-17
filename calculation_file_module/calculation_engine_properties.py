@@ -67,16 +67,6 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     delta_H *= coefficient
                     delta_S *= coefficient
 
-                    if substance_type == "Reactant":
-                        sum_enthalpy_reactants += delta_H
-                        sum_entropy_reactants += delta_S
-                    else:
-                        sum_enthalpy_products += delta_H
-                        sum_entropy_products += delta_S
-
-                    change_in_enthalpy = sum_enthalpy_products - sum_enthalpy_reactants
-                    change_in_entropy = sum_entropy_products - sum_entropy_reactants
-
                     if a_value != 0:
                         a_value /= 1000
                     else:
@@ -87,10 +77,19 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     else:
                         b_value = 1e-6
 
-                    sum_a_reactants += a_value
-                    sum_b_reactants += b_value
-                    sum_a_products += a_value
-                    sum_b_products += b_value
+                    if substance_type == "Reactant":
+                        sum_enthalpy_reactants += delta_H
+                        sum_entropy_reactants += delta_S
+                        sum_a_reactants += a_value
+                        sum_b_reactants += b_value
+                    else:
+                        sum_enthalpy_products += delta_H
+                        sum_entropy_products += delta_S
+                        sum_a_products += a_value
+                        sum_b_products += b_value
+
+                    change_in_enthalpy = sum_enthalpy_products - sum_enthalpy_reactants
+                    change_in_entropy = sum_entropy_products - sum_entropy_reactants
                     change_in_a = sum_a_products - sum_a_reactants
                     change_in_b = sum_b_products - sum_b_reactants
 
@@ -130,6 +129,7 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                  heat_capacity,
                  enthalpy_calculation,
                  entropy_calculation,
+                 
                  temperature
 
                  )
