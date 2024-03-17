@@ -13,11 +13,14 @@ def plot_ellingham_diagram(
     temperature_step,
     canvas,
 ):
-    temperatures = np.linspace(temperature_from, temperature_to, temperature_step)
+    temperatures = np.arange(temperature_from, temperature_to, temperature_step)
     reaction_equations = [eq.strip() for eq in reaction_equations]
 
     # Clear the previous plot
+    
     plt.clf()
+    canvas.figure.clf()
+    
 
     max_delta_G = float("-inf")  # Initialize max_delta_G to negative infinity
     min_delta_G = float("inf")  # Initialize min_delta_G to positive infinity

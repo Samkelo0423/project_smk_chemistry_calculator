@@ -56,8 +56,35 @@ def create_ui(root):
 
         # Add more modern features
         table.autoResizeColumns()
+    def plot_data(data_column):
+      
+      df = pd.read_excel("data_from_calculation.xlsx")
+      plt.figure(figsize=(8, 6))
+      plt.plot(df['Temperature (K)'], df[data_column], linestyle='-')
+      plt.xlabel('Temperature (K)')
+      plt.axhline(y=0, color="k", linestyle="-", linewidth=0.5)
+      plt.ylabel(data_column)
+      plt.title(f'Plot of {data_column} vs Temperature')
+      
+      # Calculate the minimum and maximum values of the data column
+      min_value = df[data_column].min()
+      max_value = df[data_column].max()
+
+      plt.ylim(min_value - 50, max_value + 50)
+      
+      canvas.figure.clf()  # Clear previous plot
+      ax = canvas.figure.add_subplot(111)  # Add subplot
+      ax.plot(df['Temperature (K)'], df[data_column], linestyle='-')  # Plot data
+      ax.set_xlabel('Temperature (K)')
+      ax.axhline(y=0, color="k", linestyle="-", linewidth=2)
+      ax.set_ylabel(data_column)
+      ax.set_title(f'Plot of {data_column} vs Temperature')
+      canvas.draw()  # Update canvas with new plot
+
+        
 
     style = ttk.Style()
+
     style.theme_use("clam")  # Use a modern theme
 
     style.configure(
@@ -128,16 +155,16 @@ def create_ui(root):
     from_temp_label = ttk.Label(cmean_frame, text="Y-Axis", font=("Helvetica", 11))
     from_temp_label.grid(row=0, column=4, padx=5)
 
-    calculate_button_h = ttk.Button(cmean_frame, text="Cp(J/(mol*K))")
+    calculate_button_h = ttk.Button(cmean_frame, text="Cp(J/(mol*K))",command=lambda: plot_data('Heat Capacity'))
     calculate_button_h.grid(row=0, column=14, padx=5)
 
-    calculate_button_s = ttk.Button(cmean_frame, text="S°298")
+    calculate_button_s = ttk.Button(cmean_frame, text="S°298",command=lambda: plot_data('S°298'))
     calculate_button_s.grid(row=0, column=6, padx=5)
 
-    calculate_button_cp = ttk.Button(cmean_frame, text="H°298")
+    calculate_button_cp = ttk.Button(cmean_frame, text="H°298",command=lambda: plot_data('H°298'))
     calculate_button_cp.grid(row=0, column=10, padx=5)
 
-    calculate_button = ttk.Button(cmean_frame, text="Delta_G")
+    calculate_button = ttk.Button(cmean_frame, text="Delta_G",command=lambda: plot_data('Delta G (kJ/mol)'))
     calculate_button.grid(row=0, column=32, padx=20)
 # Create the table
     table_frame = ttk.Frame(root)
