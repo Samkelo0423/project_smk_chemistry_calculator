@@ -10,7 +10,5 @@ if __name__ == "__main__":
     root.geometry("1422x900")  # Set the initial window size
     root.resizable(False, False) # Disable window resizing
     root.configure(bg="light gray")  # Set the background color
-
     create_ui(root)
-
     root.mainloop()
