@@ -13,7 +13,7 @@ def plot_ellingham_diagram(
     temperature_step,
     canvas,
 ):
-    temperatures = np.arange(temperature_from, temperature_to, temperature_step)
+    temperatures = np.linspace(temperature_from, temperature_to, temperature_step)
     reaction_equations = [eq.strip() for eq in reaction_equations]
 
     # Clear the previous plot
