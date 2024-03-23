@@ -287,7 +287,7 @@ def calculate_enthalpy_change(enthalpy_298, delta_a, delta_b, temperature):
         float: Enthalpy change (ΔH°T) at the given temperature.
     """
     integral = 0
-    for T in range(298, int(temperature), 1):
+    for T in range(298, int(temperature + 1), 1):
         integral += calculate_heat_capacity(delta_a, delta_b, T)
 
     enthalpy_change = enthalpy_298 + integral
