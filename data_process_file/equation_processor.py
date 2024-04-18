@@ -62,14 +62,15 @@ def parse_formula_list(formulas):
             else:
                 raise ValueError("Invalid format")
         
-        # Print the final parsed list
-        print("Parsed Formula List:")
-        for idx, entry in enumerate(parsed_list, 1):
+        
+        #for idx, entry in enumerate(parsed_list, 1):
             # Format the output string without leading or trailing spaces inside single quotes
-            formatted_entry = {key: f"{value.strip()}" if isinstance(value, str) else value for key, value in entry.items()}
-            print(f"Entry{idx}: {formatted_entry}")
+        #    formatted_entry = {key: f"{value.strip()}" if isinstance(value, str) else value for key, value in entry.items()}
+        #    print(f"Entry{idx}: {formatted_entry}")
         
         return parsed_list
+    
+    
     except Exception as e:
         print(f"Error parsing formula list: {e}")
         return None
