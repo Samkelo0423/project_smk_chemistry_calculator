@@ -1,4 +1,4 @@
-The provided code consists of three modules: 
+The provided code consists: 
 data_processor_module.py, equation_processor.py, and calculation_engine_properties.py, 
 and one script: calculation_plot_file.py.
 
