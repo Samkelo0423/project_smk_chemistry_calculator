@@ -2,6 +2,7 @@ The provided code consists of three modules:
 data_processor_module.py, equation_processor.py, and calculation_engine_properties.py, 
 and one script: calculation_plot_file.py.
 
+
 data_processor_module.py 
 contains a function validate_data(df) that validates the input DataFrame based on certain criteria such as required columns,
 state column, molar mass range, enthalpy and entropy columns, temperature range columns, and heat capacity coefficients.
