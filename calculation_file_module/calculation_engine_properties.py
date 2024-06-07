@@ -155,6 +155,7 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
 
     single_element = parse_reaction_equation(reaction_equation)
 
+
     try:
         for substances_1 in [(single_element)]:
             for substance_1 in substances_1:
