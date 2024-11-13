@@ -8,7 +8,6 @@ def parse_excel_data(file_path):
         # Perform data validation checks
         # (e.g., check for required columns, data types, missing values)
         validate_data(df)
-        
         # Preprocess the data if necessary
         # (e.g., convert units, scale values)
         preprocessed_data = preprocess_data(df)
@@ -34,20 +33,24 @@ def validate_data(df):
 
     # 1. Required Columns
     required_columns = ['Name', 'Formula', 'State', 'Mol Mass', 'H°298', 'S°298', 'a', 'b', 'C mean','Temperature Range',]
+    required_columns_2 = ['Formula', 'MW', 'Melting P.','Boiling P.','T1','T2','phase','H 298','S 298','A','B','C','D','Density']
+
+    
     if not all(col in df.columns for col in required_columns):
         missing_columns.extend(set(required_columns) - set(df.columns))
         raise ValueError(f"Missing required columns in the DataFrame: {' ,'.join(missing_columns)}" )
 
     # 2. State Column
     valid_states = ['sol', 'liq', 'gas']
+    valid_states_2 = ['l','s','g','ai','ao']
     if not df['State'].isin(valid_states).all():
         missing_columns.append("Invalid values in the 'State' column. Allowed values are: 'sol', 'liq', 'gas'.")
 
 
     # 3. Molar Mass Range
-    out_of_range_values = df.loc[(df['Mol Mass'] < 0) | (df['Mol Mass'] > 500), 'Mol Mass'].tolist()
+    out_of_range_values = df.loc[(df['Mol Mass'] < 0) | (df['Mol Mass'] > 6000), 'Mol Mass'].tolist()
     if out_of_range_values:
-     error_msg = "Molar mass values outside the expected range (0-500 g/mol): " + ', '.join(map(str, out_of_range_values))
+     error_msg = "Molar mass values outside the expected range (0-6000 g/mol): " + ', '.join(map(str, out_of_range_values))
      missing_columns.append(error_msg)
 
     # 4. Enthalpy and Entropy Columns
