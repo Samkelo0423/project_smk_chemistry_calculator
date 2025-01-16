@@ -11,12 +11,9 @@ def parse_excel_data(file_path):
         # (e.g., convert units, scale values)
         preprocessed_data = preprocess_data(df)
         
-        # Log important values for calculations
-        important_values = df[['Formula', 'MW (g/mol)', 'Phase', 'H 298 (kcal/mol)', 'S 298 (cal/mol*K)', 'A' , 'B' , 'C' , 'D']]
-        print("Important values for calculations:")
-        print(important_values.head())  # Log important values
+
         
-        return preprocessed_data
+        return preprocessed_data # Return the filtered DataFrame
     except Exception as e:
         # Handle any errors encountered during data processing
         print(f"Error parsing Excel data: {e}")
@@ -44,7 +41,6 @@ def validate_data(df):
         raise ValueError(f"Missing required columns in the DataFrame: {' ,'.join(missing_columns)}" )
 
     # 2. State Column
-    print("Unique values in 'Phase' column:", df['Phase'].unique())  # Log unique values in the 'Phase' column
     valid_states= ['l','s','g','ia','ao']
     
     # Replace invalid values in 'Phase' column with a default value (e.g., 's')
@@ -112,9 +108,10 @@ def preprocess_data(df):
     except (KeyError, ValueError) as e:
         print(f"Error extracting heat capacity coefficients: {e}")
 
-    print(df.columns)
+    # Select the first occurrence of each unique formula for each specific phase
+    unique_values = df[['Formula', 'MW (g/mol)', 'Phase', 'T1 (K)' , 'T2 (K)','H 298 (kcal/mol)', 'S 298 (cal/mol*K)', 'A' , 'B' , 'C', 'D' , 'Density (g/cm3)']].drop_duplicates(subset=['Formula', 'Phase'])
    
-    return df
+    return unique_values
 
 # Preprocess the data
 file_path = ("HSC_database.xlsx")
