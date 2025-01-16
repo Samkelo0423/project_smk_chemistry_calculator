@@ -32,7 +32,7 @@ def create_ui(root):
         temperature_step = int(step_temp_entry.get())
 
         file_path = (
-            "Thermodata.xlsx"  # Update with your file path for delta G calculation
+            "HSC_database.xlsx"  # Update with your file path for delta G calculation
         )
         s = plot_ellingham_diagram(
             file_path,

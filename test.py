@@ -1,84 +1,7 @@
-from sympy import Matrix,lcm
-import re
 from sympy import Matrix
+import re
+from sympy import Matrix, lcm
 from sympy.ntheory import factorint
-
-
-def parse_reaction_equation(reaction_equation):
-    try:
-        if "=" not in reaction_equation:
-            if isinstance(reaction_equation, list):
-                # If it's already a list, assume it's a list of formulas
-                return parse_formula_list(reaction_equation)
-            else:
-                # If it's a single formula, convert it to a list
-                list_1= []
-                list_1.append(reaction_equation)
-                return parse_formula_list(list_1)
-        
-        balanced_reactants, balanced_products = balance_equation(reaction_equation)
-        reactants_list = parse_formula_list(balanced_reactants)
-        products_list = parse_formula_list(balanced_products)
-
-        return reactants_list, products_list
-
-    except Exception as e:
-        print(f"Error parsing reaction equation: {e}")
-        return None, None
-
-
-def parse_formula_list(formulas):
-    try:
-        parsed_list = []
-        
-        for item in formulas:
-            # Strip leading and trailing whitespace
-            item = item.strip()
-            # Split the item into coefficient/formula and state
-            parts = item.split('(')
-            
-            # Ensure the parts are in the expected format
-            if len(parts) >= 2:
-                # Extract the coefficient and formula
-                coefficient_formula = parts[0].strip()
-                if coefficient_formula[0].isdigit():
-                    coefficient_end_index = 1
-                    while coefficient_end_index < len(coefficient_formula) and coefficient_formula[coefficient_end_index].isdigit():
-                        coefficient_end_index += 1
-                    coefficient = int(coefficient_formula[:coefficient_end_index])
-                    formula = coefficient_formula[coefficient_end_index:]
-                else:
-                    coefficient = 1  # If no coefficient specified, assume 1
-                    formula = coefficient_formula
-                
-                # Extract and normalize the state
-                Phase = parts[1].replace(')', '').strip().lower()  # Convert to lowercase for consistency
-                if Phase is not None:
-                    Phase = Phase.strip()  # Remove leading or trailing spaces inside single quotes
-                
-                # Append the parsed formula to the list
-                parsed_list.append({'coefficient': coefficient,'formula': formula, 'phase': Phase})
-            else:
-                raise ValueError("Invalid format")
-        
-        return parsed_list
-    
-    
-    except Exception as e:
-        print(f"Error parsing formula list: {e}")
-        return None
-
-
-def lcm(arr):
-    lcm = 1
-    factors = {}
-    for num in arr:
-        num_factors = factorint(num)
-        for factor, power in num_factors.items():
-            factors[factor] = max(factors.get(factor, 0), power)
-    for factor, power in factors.items():
-        lcm *= factor ** power
-    return lcm
 
 
 def balance_equation(full_equation, given_coefficients=None):
@@ -192,3 +115,9 @@ def balance_equation(full_equation, given_coefficients=None):
     ]
 
     return balanced_reactants, balanced_products
+
+equation_to_balance = "C + O2 = CO"
+
+balanced_reactants, balanced_products = balance_equation(equation_to_balance)
+print(balanced_products)
+print(balanced_reactants)

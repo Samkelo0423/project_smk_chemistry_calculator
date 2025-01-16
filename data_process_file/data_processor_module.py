@@ -6,11 +6,15 @@ def parse_excel_data(file_path):
         df = pd.read_excel(file_path)
         
         # Perform data validation checks
-        # (e.g., check for required columns, data types, missing values)
         validate_data(df)
         # Preprocess the data if necessary
         # (e.g., convert units, scale values)
         preprocessed_data = preprocess_data(df)
+        
+        # Log important values for calculations
+        important_values = df[['Formula', 'MW (g/mol)', 'Phase', 'H 298 (kcal/mol)', 'S 298 (cal/mol*K)', 'A' , 'B' , 'C' , 'D']]
+        print("Important values for calculations:")
+        print(important_values.head())  # Log important values
         
         return preprocessed_data
     except Exception as e:
@@ -20,6 +24,7 @@ def parse_excel_data(file_path):
 
 
 def validate_data(df):
+    
     """
     Validates the input DataFrame based on the following criteria:
     1. Required Columns
@@ -32,94 +37,86 @@ def validate_data(df):
     missing_columns = []
 
     # 1. Required Columns
-    required_columns = ['Name', 'Formula', 'State', 'Mol Mass', 'H°298', 'S°298', 'a', 'b', 'C mean','Temperature Range',]
-    required_columns_2 = ['Formula', 'MW', 'Melting P.','Boiling P.','T1','T2','phase','H 298','S 298','A','B','C','D','Density']
+    required_columns= ['Formula', 'MW (g/mol)', 'Melting P. (K)','Boiling P. (K)','T1 (K)','T2 (K)','Phase','H 298 (kcal/mol)','S 298 (cal/mol*K)','A','B','C','D','Density (g/cm3)']
 
-    
     if not all(col in df.columns for col in required_columns):
         missing_columns.extend(set(required_columns) - set(df.columns))
         raise ValueError(f"Missing required columns in the DataFrame: {' ,'.join(missing_columns)}" )
 
     # 2. State Column
-    valid_states = ['sol', 'liq', 'gas']
-    valid_states_2 = ['l','s','g','ai','ao']
-    if not df['State'].isin(valid_states).all():
-        missing_columns.append("Invalid values in the 'State' column. Allowed values are: 'sol', 'liq', 'gas'.")
+    print("Unique values in 'Phase' column:", df['Phase'].unique())  # Log unique values in the 'Phase' column
+    valid_states= ['l','s','g','ia','ao']
+    
+    # Replace invalid values in 'Phase' column with a default value (e.g., 's')
+    df['Phase'] = df['Phase'].where(df['Phase'].isin(valid_states), 's')
+    
+    # Replace missing values in 'Phase' column with the default value 's'
+    df['Phase'].fillna('s', inplace=True)
 
+    # Log the number of replacements made
+    replaced_count = df['Phase'].isna().sum()
+    if replaced_count > 0:
+        print(f"Replaced {replaced_count} missing values in the 'Phase' column with default value 's'.")
 
-    # 3. Molar Mass Range
-    out_of_range_values = df.loc[(df['Mol Mass'] < 0) | (df['Mol Mass'] > 6000), 'Mol Mass'].tolist()
-    if out_of_range_values:
-     error_msg = "Molar mass values outside the expected range (0-6000 g/mol): " + ', '.join(map(str, out_of_range_values))
-     missing_columns.append(error_msg)
+    # 3. Enthalpy and Entropy Columns
+    if df['H 298 (kcal/mol)'].isnull().any() or df['S 298 (cal/mol*K)'].isnull().any():
+        df['H 298 (kcal/mol)'] = df['H 298 (kcal/mol)'].fillna(0)
+        df['S 298 (cal/mol*K)'] = df['S 298 (cal/mol*K)'].fillna(0)
+        missing_columns.append("Missing values in 'H 298' or 'S 298' columns have been replaced with 0.")
 
-    # 4. Enthalpy and Entropy Columns
-    if df['H°298'].isnull().any() or df['S°298'].isnull().any():
-     df['H°298'] = df['H°298'].fillna(0)
-     df['S°298'] = df['S°298'].fillna(0)
-     missing_columns.append("Missing values in 'H°298' or 'S°298' columns have been replaced with 0.")
-
-    # 5. Temperature Range Columns
-     
+    # 4. Temperature Range Columns
     try:
-     required_columns = ['Temperature Range']
-     missing_columns = [col for col in required_columns if col not in df.columns]
-     if missing_columns:
-        raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
-    
-    # Split 'Temperature Range' into 'Temperature Range Start' and 'Temperature Range End'
-     df[['Temperature Range Start', 'Temperature Range End']] = df['Temperature Range'].str.split('-', expand=True).astype(float)
-    
-    # Additional checks for data consistency
-    # Check for missing values in 'Temperature Range Start' or 'Temperature Range End'
-     if df['Temperature Range Start'].isnull().any() or df['Temperature Range End'].isnull().any():
-        raise ValueError("Missing values found in 'Temperature Range Start' or 'Temperature Range End' columns.")
-    
-    # Check temperature range values
-     if (df['Temperature Range Start'] < 0).any() or (df['Temperature Range End'] > 5000).any():
-        raise ValueError("Temperature range values outside the expected range (0-5000 K).")
-    
-    # Check if 'Temperature Range Start' is less than 'Temperature Range End'
-     if (df['Temperature Range Start'] >= df['Temperature Range End']).any():
-        raise ValueError("Temperature range start must be less than temperature range end.")
+        required_columns = ['T1 (K)', 'T2 (K)']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
+        
+        # Additional checks for data consistency
+        if df['T1 (K)'].isnull().any() or df['T2 (K)'].isnull().any():
+            raise ValueError("Missing values found in 'Temperature Range Start' or 'Temperature Range End' columns.")
+        
+        if (df['T1 (K)'] >= df['T2 (K)']).any():
+            raise ValueError("Temperature range start must be less than temperature range end.")
     except Exception as e:
-      print(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
 
     # 6. Heat Capacity Coefficients
     try:
-     # Replace empty values with zero
-      df.fillna(0, inplace=True)
-      if df['a'].isnull().any() or df['b'].isnull().any() or df['C mean'].isnull().any():
-        raise ValueError("Missing values found in heat capacity coefficients (a, b,) or C mean.")
-     
+        df.fillna(0, inplace=True)
+        if df['A'].isnull().any() or df['B'].isnull().any() or df['C'].isnull().any() or df['D'].isnull().any():
+            raise ValueError("Missing values found in heat capacity coefficients A, B, C, and D")
     except Exception as e:
-     print(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
 
-    
 def preprocess_data(df):
-   
     try:
         # Convert enthalpy and entropy values to kJ/mol
-        df['H°298'] /= 1000
-        df['S°298'] /= 1000
+        df['H 298 (kcal/mol)'] 
+        df['S 298 (cal/mol*K)'] 
     except KeyError as e:
         print(f"Error converting enthalpy and entropy values: {e}")
     
-    
     try:
         # Split 'Temperature Range' into 'Temperature Range Start' and 'Temperature Range End'
-        df[['Temperature Range Start', 'Temperature Range End']] = df['Temperature Range'].str.split('-', expand=True)
-        df['Temperature Range Start'] = pd.to_numeric(df['Temperature Range Start'], errors='coerce').fillna(0)
-        df['Temperature Range End'] = pd.to_numeric(df['Temperature Range End'], errors='coerce').fillna(0)
+        df['T1 (K)'] = pd.to_numeric(df['T1 (K)'], errors='coerce').fillna(0)
+        df['T2 (K)'] = pd.to_numeric(df['T2 (K)'], errors='coerce').fillna(0)
     except (KeyError, ValueError) as e:
         print(f"Error extracting temperature range data: {e}")
     
     try:
         # Convert heat capacity coefficients to float and replace empty strings with zero
-        df['a'] = pd.to_numeric(df['a'], errors='coerce').fillna(0)
-        df['b'] = pd.to_numeric(df['b'], errors='coerce').fillna(0)
-        df['C mean'] = pd.to_numeric(df['C mean'], errors='coerce').fillna(0)
+        df['A'] = pd.to_numeric(df['A'], errors='coerce').fillna(0)
+        df['B'] = pd.to_numeric(df['B'], errors='coerce').fillna(0)
+        df['C'] = pd.to_numeric(df['C'], errors='coerce').fillna(0)
+        df['D'] = pd.to_numeric(df['D'], errors='coerce').fillna(0)
     except (KeyError, ValueError) as e:
         print(f"Error extracting heat capacity coefficients: {e}")
-    
+
+    print(df.columns)
+   
     return df
+
+# Preprocess the data
+file_path = ("HSC_database.xlsx")
+data_test = parse_excel_data(file_path)
+print(data_test)
