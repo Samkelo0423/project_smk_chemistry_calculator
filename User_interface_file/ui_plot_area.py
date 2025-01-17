@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, font
 import pandas as pd
 import openpyxl
 from pandastable import Table
@@ -32,7 +32,7 @@ def create_ui(root):
         temperature_step = int(step_temp_entry.get())
 
         file_path = (
-            'chemical_species_data_base.json'  # Update with your file path for delta G calculation
+            "HSC_database.xlsx"  # Update with your file path for delta G calculation
         )
         s = plot_ellingham_diagram(
             file_path,

@@ -1,9 +1,9 @@
 import pandas as pd
 
-def parse_database_chemical_speacies(file_path):
+def parse_excel_data(file_path):
     try:
         # Read Excel file into a Pandas DataFrame
-        df = pd.read_json(file_path)
+        df = pd.read_excel(file_path)
         
         # Perform data validation checks
         validate_data(df)
@@ -17,6 +17,7 @@ def parse_database_chemical_speacies(file_path):
         # Handle any errors encountered during data processing
         print(f"Error parsing Excel data: {e}")
         return None
+
 
 def validate_data(df):
     
@@ -52,15 +53,13 @@ def validate_data(df):
     if replaced_count > 0:
         print(f"Replaced {replaced_count} missing values in the 'Phase' column with default value 's'.")
 
-    # 3. Enthalpy and Entropy Columns - Log missing values
-
+    # 3. Enthalpy and Entropy Columns
     if df['H 298 (kcal/mol)'].isnull().any() or df['S 298 (cal/mol*K)'].isnull().any():
         df['H 298 (kcal/mol)'] = df['H 298 (kcal/mol)'].fillna(0)
         df['S 298 (cal/mol*K)'] = df['S 298 (cal/mol*K)'].fillna(0)
         missing_columns.append("Missing values in 'H 298' or 'S 298' columns have been replaced with 0.")
 
-    # 4. Temperature Range Columns - Log missing values
-
+    # 4. Temperature Range Columns
     try:
         required_columns = ['T1 (K)', 'T2 (K)']
         missing_columns = [col for col in required_columns if col not in df.columns]
@@ -76,8 +75,7 @@ def validate_data(df):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-    # 6. Heat Capacity Coefficients - Log missing values
-
+    # 6. Heat Capacity Coefficients
     try:
         df.fillna(0, inplace=True)
         if df['A'].isnull().any() or df['B'].isnull().any() or df['C'].isnull().any() or df['D'].isnull().any():
@@ -114,4 +112,7 @@ def preprocess_data(df):
    
     return unique_values
 
-
+# Preprocess the data
+file_path = ("HSC_database.xlsx")
+data_test = parse_excel_data(file_path)
+print(data_test)
