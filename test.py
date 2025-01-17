@@ -116,8 +116,4 @@ def balance_equation(full_equation, given_coefficients=None):
 
     return balanced_reactants, balanced_products
 
-equation_to_balance = "C + O2 = CO"
 
-balanced_reactants, balanced_products = balance_equation(equation_to_balance)
-print(balanced_products)
-print(balanced_reactants)

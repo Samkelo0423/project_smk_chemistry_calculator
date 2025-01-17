@@ -10,8 +10,11 @@ def perform_calculations(file_path, temperature, reaction_equation):
     if processed_data is None:
         print("Error: Failed to parse Excel data.")
         return None
-    try:
+    
+    print("Processed Data for Calculations:")
+    print(processed_data.head())  # Log the processed data to confirm its structure
 
+    try:
         # Check if the reaction equation is a single-element formula
         if "=" in reaction_equation and "+" not in reaction_equation:
             delta_G_reaction, heat_capacity, enthalpy, entropy, temperature_1 = (
@@ -48,7 +51,6 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
         sum_c_products = 0
         sum_d_products = 0
 
-
         for substance_type, substances in [
             ("Reactant", reactants),
             ("Product", products),
@@ -58,23 +60,20 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                 substance_formula = substance["formula"].strip()
                 phase = substance["Phase"]
 
-                #Attempt exact match with phase included (e.g, "Al(g)")
+                # Attempt exact match with phase included (e.g, "Al(g)")
                 substance_data = processed_data[
                     (processed_data["Formula"] == f"{substance_formula}({phase})")
                     & (processed_data["Phase"] == phase)
                 ]
 
-                #if the exact match fails, fallback to formula only search
+                # if the exact match fails, fallback to formula only search
                 if substance_data.empty:
-
                     substance_data = processed_data[
-                    (processed_data["Formula"] == substance_formula)
-                    & (processed_data["Phase"] == phase)
-                ]
-
+                        (processed_data["Formula"] == substance_formula)
+                        & (processed_data["Phase"] == phase)
+                    ]
 
                 if not substance_data.empty:
-
                     delta_H = substance_data.iloc[0]["H 298 (kcal/mol)"]
                     delta_S = substance_data.iloc[0]["S 298 (cal/mol*K)"]
                     a_value = substance_data.iloc[0]["A"]
@@ -105,7 +104,6 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     else:
                         d_value = 1e-6
 
-
                     if substance_type == "Reactant":
                         sum_enthalpy_reactants += delta_H
                         sum_entropy_reactants += delta_S
@@ -135,9 +133,7 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     )
 
                     heat_capacity = calculate_heat_capacity(
-
                         a_value, b_value, c_value, d_value, temperature
-
                     )
                     entropy_calculation = calculate_entropy_change(
                         change_in_entropy, change_in_a, change_in_b, change_in_c, change_in_d, temperature
@@ -147,11 +143,9 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                     )
 
                     delta_G = (
-
                         change_in_enthalpy
                         - temperature * change_in_entropy
                         + contribution_of_coefficients
-
                     )
 
                 else:
@@ -159,14 +153,12 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
                         f"Error: Substance '{substance_formula}' with state '{phase}' not found in the database. Skipping..."
                     )
         return (
-
-                 delta_G,
-                 heat_capacity,
-                 enthalpy_calculation,
-                 entropy_calculation,
-                 temperature
-
-                 )
+            delta_G,
+            heat_capacity,
+            enthalpy_calculation,
+            entropy_calculation,
+            temperature
+        )
 
     except KeyError as e:
         print(f"KeyError occurred while accessing the DataFrame columns: {e}")
@@ -186,9 +178,7 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
 
 
 def calculate_freegibbs_single_element(processed_data, reaction_equation, temperature):
-
     single_element = parse_reaction_equation(reaction_equation)
-
 
     try:
         for substances_1 in [(single_element)]:
@@ -196,22 +186,20 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                 substance_formula = substance_1["formula"].strip()
                 phase = substance_1["Phase"]
 
-                #Attempt exact match with phase included (e.g, "Al(g)")
+                # Attempt exact match with phase included (e.g, "Al(g)")
                 substance_data = processed_data[
                     (processed_data["Formula"] == f"{substance_formula}({phase})")
                     & (processed_data["Phase"] == phase)
                 ]
 
-                #if the exact match fails, fallback to formula only search
+                # if the exact match fails, fallback to formula only search
                 if substance_data.empty:
-
                     substance_data = processed_data[
-                    (processed_data["Formula"] == substance_formula)
-                    & (processed_data["Phase"] == phase)
-                ]
+                        (processed_data["Formula"] == substance_formula)
+                        & (processed_data["Phase"] == phase)
+                    ]
 
                 if not substance_data.empty:
-
                     delta_H = substance_data.iloc[0]["H 298 (kcal/mol)"]
                     delta_S = substance_data.iloc[0]["S 298 (cal/mol*K)"]
                     a_value = substance_data.iloc[0]["A"]
@@ -238,19 +226,18 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
                     )
 
                     heat_capacity = calculate_heat_capacity(
-                        a_value, b_value,c_value , d_value, temperature
+                        a_value, b_value, c_value, d_value, temperature
                     )
 
                     entropy_calculation = calculate_entropy_change(
-                        delta_S, a_value, b_value, c_value , d_value, temperature
+                        delta_S, a_value, b_value, c_value, d_value, temperature
                     )
                     enthalpy_calculation = calculate_enthalpy_change(
-                        delta_S, a_value, b_value, c_value , d_value, temperature
+                        delta_S, a_value, b_value, c_value, d_value, temperature
                     )
 
                 else:
                     print(
-                        
                         f"Error: Substance '{substance_formula}' not found in the database."
                     )
                     return None
@@ -270,11 +257,11 @@ def calculate_freegibbs_single_element(processed_data, reaction_equation, temper
         return None
 
     except Exception as e:
-        print(f"Error occurred : {e}")
+        print(f"Error occurred: {e}")
         return None
 
 
-def calculate_contribution_of_coefficients(delta_a, delta_b,delta_c, delta_d , temperature):
+def calculate_contribution_of_coefficients(delta_a, delta_b, delta_c, delta_d, temperature):
     """
     Calculate the contribution of coefficients to the Gibbs free energy.
 
@@ -306,7 +293,7 @@ def is_single_element_formula(reaction_equation):
     # Check if the reaction equation contains only the "=" sign
     return "=" in reaction_equation and "+" not in reaction_equation
 
-def calculate_heat_capacity(delta_a, delta_b, delta_c , delta_d , temperature):
+def calculate_heat_capacity(delta_a, delta_b, delta_c, delta_d, temperature):
     """
     Calculate the heat capacity at a given temperature.
 
@@ -372,3 +359,4 @@ def calculate_entropy_change(entropy_298, delta_a, delta_b, delta_c, delta_d, te
     entropy_change = entropy_298 + integral
 
     return entropy_change
+

@@ -11,9 +11,8 @@ def parse_excel_data(file_path):
         # (e.g., convert units, scale values)
         preprocessed_data = preprocess_data(df)
         
-
-        
         return preprocessed_data # Return the filtered DataFrame
+    
     except Exception as e:
         # Handle any errors encountered during data processing
         print(f"Error parsing Excel data: {e}")
