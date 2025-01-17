@@ -1,11 +1,10 @@
-import numpy as np
+import data_process_file
 import math
-from data_process_file.data_processor_module import parse_excel_data
-from data_process_file.equation_processor import parse_reaction_equation
+
 
 
 def perform_calculations(file_path, temperature, reaction_equation):
-    processed_data = parse_excel_data(file_path)
+    processed_data = data_process_file.parse_excel_data(file_path)
 
     if processed_data is None:
         print("Error: Failed to parse Excel data.")
@@ -36,7 +35,7 @@ def perform_calculations(file_path, temperature, reaction_equation):
 
 def calculate_freegibbs(processed_data, reaction_equation, temperature):
     try:
-        reactants, products = parse_reaction_equation(reaction_equation)
+        reactants, products = data_process_file.parse_reaction_equation(reaction_equation)
 
         sum_enthalpy_reactants = 0
         sum_entropy_reactants = 0
@@ -178,7 +177,7 @@ def calculate_freegibbs(processed_data, reaction_equation, temperature):
 
 
 def calculate_freegibbs_single_element(processed_data, reaction_equation, temperature):
-    single_element = parse_reaction_equation(reaction_equation)
+    single_element = data_process_file.parse_reaction_equation(reaction_equation)
 
     try:
         for substances_1 in [(single_element)]:
@@ -357,6 +356,8 @@ def calculate_entropy_change(entropy_298, delta_a, delta_b, delta_c, delta_d, te
         integral += calculate_heat_capacity(delta_a, delta_b, delta_c, delta_d, T) / T
 
     entropy_change = entropy_298 + integral
+    
+    return entropy_change
 
 file_path = (
             "HSC_database.xlsx"  # Update with your file path for delta G calculation
