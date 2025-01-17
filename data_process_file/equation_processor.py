@@ -3,7 +3,6 @@ import re
 from sympy import Matrix
 from sympy.ntheory import factorint
 
-
 def parse_reaction_equation(reaction_equation):
     try:
         if "=" not in reaction_equation:
@@ -52,17 +51,16 @@ def parse_formula_list(formulas):
                     formula = coefficient_formula
                 
                 # Extract and normalize the state
-                Phase = parts[1].replace(')', '').strip().lower()  # Convert to lowercase for consistency
-                if Phase is not None:
-                    Phase = Phase.strip()  # Remove leading or trailing spaces inside single quotes
+                phase = parts[1].replace(')', '').strip().lower()  # Convert to lowercase for consistency
+                if phase is not None:
+                    phase = phase.strip()  # Remove leading or trailing spaces inside single quotes
                 
                 # Append the parsed formula to the list
-                parsed_list.append({'coefficient': coefficient,'formula': formula, 'phase': Phase})
+                parsed_list.append({'coefficient': coefficient,'formula': formula, 'phase': phase})
             else:
                 raise ValueError("Invalid format")
         
         return parsed_list
-    
     
     except Exception as e:
         print(f"Error parsing formula list: {e}")
@@ -79,7 +77,6 @@ def lcm(arr):
     for factor, power in factors.items():
         lcm *= factor ** power
     return lcm
-
 
 def balance_equation(full_equation, given_coefficients=None):
 
