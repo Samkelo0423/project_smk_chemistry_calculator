@@ -358,5 +358,11 @@ def calculate_entropy_change(entropy_298, delta_a, delta_b, delta_c, delta_d, te
 
     entropy_change = entropy_298 + integral
 
-    return entropy_change
+file_path = (
+            "HSC_database.xlsx"  # Update with your file path for delta G calculation
+        )
 
+reaction_equation = "H2O(g) = H2(g) + O2(g)"
+
+free_gibs = perform_calculations(file_path, 200, reaction_equation)
+print(free_gibs)
