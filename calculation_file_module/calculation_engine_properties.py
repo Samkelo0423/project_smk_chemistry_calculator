@@ -1,9 +1,13 @@
+import pandas as pd
 import math
 from data_process_file.data_processor_module import parse_database_chemical_speacies
 from data_process_file.equation_processor import parse_reaction_equation
 
 def perform_calculations(file_path, temperature, reaction_equation):
-    processed_data = parse_database_chemical_speacies(file_path)
+
+
+    processed_data = create_temp_dataframe(file_path , reaction_equation)
+    #processed_data = parse_database_chemical_speacies(file_path)
 
     if processed_data is None:
         print("Error: Failed to parse Excel data.")
@@ -355,5 +359,49 @@ def calculate_entropy_change(entropy_298, delta_a, delta_b, delta_c, delta_d, te
         integral += calculate_heat_capacity(delta_a, delta_b, delta_c, delta_d, T) / T
 
     entropy_change = entropy_298 + integral
-    
+
     return entropy_change
+
+
+def create_temp_dataframe(file_path, reaction_equations):
+    # Initialize empty DataFrame to store the filtered data
+
+    processed_data = parse_database_chemical_speacies(file_path)
+    temp_df = pd.DataFrame()
+
+    reactants, products = parse_reaction_equation(reaction_equations)
+
+    for label, substances in [("Reactant", reactants), ("Product", products)]:
+        for substance in substances:
+            # Ensure that substance is a dictionary
+            if isinstance(substance, dict):
+                substance_formula = substance["formula"].strip()
+                phase = substance["phase"]
+
+                # Attempt exact match with phase included (e.g, "Al(g)")
+                substance_data = processed_data[
+                    (processed_data["Formula"] == f"{substance_formula}({phase})")
+                    & (processed_data["Phase"] == phase)
+                ]
+
+                # if the exact match fails, fallback to formula only search
+                if substance_data.empty:
+                    substance_data = processed_data[
+                        (processed_data["Formula"] == substance_formula)
+                        & (processed_data["Phase"] == phase)
+                    ]
+
+                # If we found matching data, append it to our temporary DataFrame
+                if not substance_data.empty:
+                    temp_df = pd.concat([temp_df, substance_data], ignore_index=True)
+                else:
+                    print(f"Warning: No data found for {substance_formula}({phase})")
+            else:
+                print(
+                    f"Warning: Expected a dictionary for substance, got {type(substance)} instead."
+                )
+
+    # Remove any duplicate rows that might have been added
+    temp_df = temp_df.drop_duplicates()
+
+    return temp_df

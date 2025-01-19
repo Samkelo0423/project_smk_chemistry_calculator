@@ -13,7 +13,7 @@ if __name__ == "__main__":
     root.tk.call("source", "forest-dark.tcl") 
     style.theme_use("forest-light")
     root.title("Specifications")
-    root.geometry("1370x910")  # Set the initial window size
+    root.geometry("1370x911")  # Set the initial window size
     root.resizable(False, False) # Disable window resizing
     root.configure(bg="White")  # Set the background color
     create_ui(root)

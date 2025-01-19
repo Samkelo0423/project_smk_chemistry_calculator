@@ -87,9 +87,9 @@ def validate_data(df):
 
 def preprocess_data(df):
     try:
-        # Convert enthalpy and entropy values to kJ/mol
-        df['H 298 (kcal/mol)'] 
-        df['S 298 (cal/mol*K)'] 
+        # Convert enthalpy and entropy values to kJ/mol and kj/mol*K because the data is in cal
+        df['H 298 (kcal/mol)']*4.184
+        df['S 298 (cal/mol*K)']*0.004184
     except KeyError as e:
         print(f"Error converting enthalpy and entropy values: {e}")
     
